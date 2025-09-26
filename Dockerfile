@@ -1,14 +1,23 @@
-FROM zilzalll/zthon:slim-buster
+# استخدم نسخة Python Slim عامة بدل الصورة الخاصة
+FROM python:3.11-slim-buster
 
-RUN git clone https://github.com/Zilzalll/ZThon.git /root/zira
+# تحديث النظام وتثبيت git وcurl و Node.js
+RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
+# تثبيت Node.js 16
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm i -g npm
+
+# نسخ المشروع داخل الحاوية
 WORKDIR /root/zira
+COPY . /root/zira
 
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs
-RUN npm i -g npm
+# تثبيت متطلبات Python
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-ENV PATH="/home/zira/bin:$PATH"
+# تحديث PATH لو فيه ملفات تنفيذية محلية
+ENV PATH="/root/zira/bin:$PATH"
 
+# أمر تشغيل البوت
 CMD ["python3","-m","zira"]
